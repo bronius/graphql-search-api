@@ -1,0 +1,6 @@
+graphql_search_api.settings_form:
+  title: 'GraphQL Search API'
+  description: 'GraphQL Search API integration settings.'
+  route_name: graphql_search_api.settings_form
+  parent: graphql.config_page
+  weight: 99

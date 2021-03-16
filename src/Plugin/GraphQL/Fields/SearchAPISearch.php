@@ -3,6 +3,7 @@
 namespace Drupal\graphql_search_api\Plugin\GraphQL\Fields;
 
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Config\Config;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -66,12 +67,20 @@ class SearchAPISearch extends FieldPluginBase implements ContainerFactoryPluginI
   private $index;
 
   /**
+   * The GraphQL Search API configuration.
+   *
+   * @var \Drupal\Core\Config\Config
+   */
+  private $settings;
+
+  /**
    * {@inheritDoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, LoggerChannelFactoryInterface $logger) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, LoggerChannelFactoryInterface $logger, Config $settings) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->logger = $logger;
+    $this->settings = $settings;
   }
 
   /**
@@ -83,7 +92,8 @@ class SearchAPISearch extends FieldPluginBase implements ContainerFactoryPluginI
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
-      $container->get('logger.factory')
+      $container->get('logger.factory'),
+      $container->get('config.factory')->get('graphql_search_api.settings')
     );
   }
 
@@ -126,6 +136,10 @@ class SearchAPISearch extends FieldPluginBase implements ContainerFactoryPluginI
   protected function getCacheDependencies(array $result, $value, array $args, ResolveContext $context, ResolveInfo $info) {
 
     $metadata = new CacheableMetadata();
+
+    if ($max_age = $this->settings->get('cache_max_age.' . $this->index->id())) {
+      $metadata->setCacheMaxAge($max_age);
+    }
 
     $metadata->addCacheTags(['search_api_list:' . $this->index->id()]);
 

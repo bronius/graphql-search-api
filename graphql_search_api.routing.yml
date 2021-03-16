@@ -1,0 +1,9 @@
+graphql_search_api.settings_form:
+  path: '/admin/config/graphql/graphql_search_api'
+  defaults:
+    _form: '\Drupal\graphql_search_api\Form\SettingsForm'
+    _title: 'GraphQL Search API Settings'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
